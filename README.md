@@ -1,2 +1,4 @@
-# toit-datacake
-Datacake connector for the ESP32 based on the Toit language.
+# datacake
+
+Connect your devices to Datacake and visualize your data in the Datacake 
+dashboard.
