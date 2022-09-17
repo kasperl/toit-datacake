@@ -1,6 +1,6 @@
 # datacake
-Connect your devices to Datacake and visualize your data in the Datacake 
-dashboard.
+Connect your devices to [Datacake](https://datacake.co/) and visualize your data in the 
+[Datacake dashboard](https://app.datacake.de/).
 
 # Trying it out
 First you need to install the Datacake service on your ESP32 using 
