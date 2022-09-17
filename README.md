@@ -3,9 +3,10 @@ Connect your devices to Datacake and visualize your data in the Datacake
 dashboard.
 
 # Trying it out
-First you need to install the Datacake service on your ESP32. The service
-runs in a separate container and handles the secure connection to the MQTT 
-broker.
+First you need to install the Datacake service on your ESP32 using 
+[Jaguar](https://github.com/toitlang/jaguar). 
+The service runs in a separate container and handles the secure connection
+to the MQTT broker.
 
 ``` sh
 jag container install datacake src/service.toit \
