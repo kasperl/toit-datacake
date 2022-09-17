@@ -35,9 +35,10 @@ is fairly straightforward.
 
 # Using Datacake in your own projects
 If you want to use Datacake in your own Toit-based project, you
-can install the package using:
+can install the package in your project directory using:
 
 ```
+cd $PROJECT_DIRECTORY
 jag pkg install datacake
 ```
 
