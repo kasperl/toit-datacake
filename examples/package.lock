@@ -1,0 +1,6 @@
+# Toit Lock File.
+prefixes:
+  datacake: ..
+packages:
+  ..:
+    path: ..
