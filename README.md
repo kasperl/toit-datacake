@@ -1,10 +1,8 @@
 # datacake
-
 Connect your devices to Datacake and visualize your data in the Datacake 
 dashboard.
 
-# Running
-
+# Trying it out
 First you need to install the Datacake service on your ESP32. The service
 runs in a separate container and handles the secure connection to the MQTT 
 broker.
@@ -33,7 +31,10 @@ If you follow along using `jag monitor`, you'll see output like this:
 ```
 
 The code for the [example](https://github.com/toitware/toit-datacake/blob/main/examples/temperature.toit) 
-is fairly straightforward. If you want to use Datacake in your own Toit-based project, you
+is fairly straightforward. 
+
+# Using Datacake in your own projects
+If you want to use Datacake in your own Toit-based project, you
 can install the package using:
 
 ```
