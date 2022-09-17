@@ -1,5 +1,5 @@
 # datacake
-Connect your devices to [Datacake](https://datacake.co/) and visualize your data in the 
+Connect your ESP32s to [Datacake](https://datacake.co/) and visualize your data in the 
 [Datacake dashboard](https://app.datacake.de/).
 
 # Trying it out
