@@ -56,3 +56,5 @@ main:
   finally:
     client.close
 ```
+
+You will still need to have the service running.
