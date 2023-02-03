@@ -2,72 +2,78 @@
 // Use of this source code is governed by an MIT-style license that can be
 // found in the LICENSE file.
 
-import certificate_roots
 import log
 import monitor
 import net
 
+import encoding.tison
+
+import certificate_roots
 import mqtt
 import mqtt.packets as mqtt
 
 import .internal.api show DatacakeService
 
-import system.services show ServiceDefinition ServiceResource
+import system.assets
+import system.services show ServiceHandler ServiceProvider ServiceResource
 import system.base.network show NetworkModule NetworkState NetworkResource
 
-ARGUMENT_ACCESS_TOKEN ::= "datacake.access.token"
-ARGUMENT_DEVICE_ID    ::= "datacake.device.id"
-ARGUMENT_PRODUCT_SLUG ::= "datacake.product.slug"
+DEFINE_API_TOKEN    ::= "datacake.api.token"
+DEFINE_DEVICE_ID    ::= "datacake.device.id"
+DEFINE_PRODUCT_SLUG ::= "datacake.product.slug"
 
 HOST ::= "mqtt.datacake.co"
 PORT ::= 8883
 
-main arguments:
+main:
   logger ::= log.Logger log.DEBUG_LEVEL log.DefaultTarget --name="datacake"
   logger.info "service starting"
 
-  if arguments is not Map:
-    logger.error "arguments are malformed" --tags={"arguments": arguments}
+  defines := assets.decode.get "jag.defines"
+      --if_present=: tison.decode it
+      --if_absent=: {:}
+  if defines is not Map:
+    logger.error "defines are malformed" --tags={"defines": defines}
     exit 1
 
-  access_token := arguments.get ARGUMENT_ACCESS_TOKEN
-  if access_token is not string:
-    logger.error "$ARGUMENT_ACCESS_TOKEN argument is not a string"
+  api_token := defines.get DEFINE_API_TOKEN
+  if api_token is not string:
+    logger.error "$DEFINE_API_TOKEN definition is not a string"
     exit 1
 
-  device_id := arguments.get ARGUMENT_DEVICE_ID
+  device_id := defines.get DEFINE_DEVICE_ID
   if device_id is not string:
-    logger.error "$ARGUMENT_DEVICE_ID argument is not a string"
+    logger.error "$DEFINE_DEVICE_ID definition is not a string"
     exit 1
 
-  product_slug := arguments.get ARGUMENT_PRODUCT_SLUG
+  product_slug := defines.get DEFINE_PRODUCT_SLUG
   if product_slug is not string:
-    logger.error "$ARGUMENT_PRODUCT_SLUG argument is not a string"
+    logger.error "$DEFINE_PRODUCT_SLUG definition is not a string"
     exit 1
 
   credentials := DatacakeCredentials
-      --access_token=access_token
+      --api_token=api_token
       --device_id=device_id
       --product_slug=product_slug
 
-  service := DatacakeServiceDefinition logger credentials
+  service := DatacakeServiceProvider logger credentials
   service.install
   logger.info "service running"
 
 class DatacakeCredentials:
-  access_token/string
+  api_token/string
   device_id/string
   product_slug/string
-  constructor --.access_token --.device_id --.product_slug:
+  constructor --.api_token --.device_id --.product_slug:
 
-class DatacakeServiceDefinition extends ServiceDefinition:
+class DatacakeServiceProvider extends ServiceProvider implements ServiceHandler:
   logger_/log.Logger
   credentials_/DatacakeCredentials
   state_ ::= NetworkState
 
   constructor .logger_ .credentials_:
     super "datacake" --major=1 --minor=0
-    provides DatacakeService.UUID DatacakeService.MAJOR DatacakeService.MINOR
+    provides DatacakeService.SELECTOR --handler=this
 
   handle pid/int client/int index/int arguments/any -> any:
     if index == DatacakeService.CONNECT_INDEX:
@@ -128,8 +134,8 @@ class DatacakeMqttModule implements NetworkModule:
       client = mqtt.FullClient --transport=transport
       options := mqtt.SessionOptions
           --client_id=client_id
-          --username=credentials_.access_token
-          --password=credentials_.access_token
+          --username=credentials_.api_token
+          --password=credentials_.api_token
       client.connect --options=options
       logger_.info "connected" --tags={"host": HOST, "port": PORT, "client": client_id}
       connected.set client
@@ -157,6 +163,6 @@ class DatacakeMqttModule implements NetworkModule:
 
 class DatacakeClient extends NetworkResource:
   module/DatacakeMqttModule
-  constructor service/DatacakeServiceDefinition client/int state/NetworkState:
+  constructor provider/DatacakeServiceProvider client/int state/NetworkState:
     module = state.module as DatacakeMqttModule
-    super service client state
+    super provider client state
