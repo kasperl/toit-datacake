@@ -7,10 +7,13 @@ import encoding.json
 import system.services show ServiceResourceProxy
 import .internal.api show DatacakeService DatacakeServiceClient
 
-_client_/DatacakeServiceClient? ::= DatacakeServiceClient
+_client_/DatacakeServiceClient? ::= (DatacakeServiceClient).open
+    --if_absent=: null
 
 connect --tls/bool=true -> Client:
-  handle := _client_.connect tls
+  client := _client_
+  if not client: throw "Cannot find Datacake service"
+  handle := client.connect tls
   return Client handle
 
 class Client extends ServiceResourceProxy:
