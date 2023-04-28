@@ -15,7 +15,7 @@ import mqtt.packets as mqtt
 import .internal.api show DatacakeService
 
 import system.assets
-import system.services show ServiceHandler ServiceProvider ServiceResource
+import system.services show ServiceHandlerNew ServiceProvider ServiceResource
 import system.base.network show NetworkModule NetworkState NetworkResource
 
 DEFINE_API_TOKEN    ::= "datacake.api.token"
@@ -66,16 +66,16 @@ class DatacakeCredentials:
   product_slug/string
   constructor --.api_token --.device_id --.product_slug:
 
-class DatacakeServiceProvider extends ServiceProvider implements ServiceHandler:
+class DatacakeServiceProvider extends ServiceProvider implements ServiceHandlerNew:
   logger_/log.Logger
   credentials_/DatacakeCredentials
   state_ ::= NetworkState
 
   constructor .logger_ .credentials_:
     super "datacake" --major=1 --minor=0
-    provides DatacakeService.SELECTOR --handler=this
+    provides DatacakeService.SELECTOR --handler=this --new
 
-  handle pid/int client/int index/int arguments/any -> any:
+  handle index/int arguments/any --gid/int --client/int -> any:
     if index == DatacakeService.CONNECT_INDEX:
       return connect arguments client
     if index == DatacakeService.PUBLISH_INDEX:
